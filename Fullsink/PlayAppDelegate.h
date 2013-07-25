@@ -9,8 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @class PlayViewController;
+@class   HTTPServer;
 
 @interface PlayAppDelegate : UIResponder <UIApplicationDelegate>
+{
+	HTTPServer *httpServer;
+}
+
 
 @property (strong, nonatomic) UIWindow *window;
 

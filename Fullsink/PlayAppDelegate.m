@@ -9,6 +9,13 @@
 #import "PlayAppDelegate.h"
 
 #import "PlayViewController.h"
+#import "HTTPServer.h"
+#import "MyHTTPConnection.h"
+#import "DDLog.h"
+#import "DDTTYLogger.h"
+
+// Log levels: off, error, warn, info, verbose
+static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 @implementation PlayAppDelegate
 
@@ -23,6 +30,36 @@
     }
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
+    
+    // Configure our logging framework.
+	// To keep things simple and fast, we're just going to log to the Xcode console.
+	[DDLog addLogger:[DDTTYLogger sharedInstance]];
+	
+//    NSLog(@"Start Server 1");
+	// Initalize our http server
+	httpServer = [[HTTPServer alloc] init];
+    // Tell server to use our custom MyHTTPConnection class.
+	[httpServer setConnectionClass:[MyHTTPConnection class]];
+
+    [httpServer setPort:8080];
+    
+	// Serve files from the standard Sites folder
+	//NSString *docRoot = [@"~/Sites" stringByExpandingTildeInPath];
+//    NSString *docRoot = @"/Documents/Sites";
+    NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)
+                                    objectAtIndex:0];
+    NSString *docRoot = [documentsDirectory stringByAppendingPathComponent:@"FlSkHtml"];
+	DDLogInfo(@"Setting document root: %@", docRoot);
+	
+	[httpServer setDocumentRoot:docRoot];
+//	NSLog(@"Start Server 3");
+	NSError *error = nil;
+	if(![httpServer start:&error])
+	{
+        NSLog(@"Start Server error");
+		DDLogError(@"Error starting HTTP Server: %@", error);
+	}
+NSLog(@"Start Server 4");
     return YES;
 }
 
